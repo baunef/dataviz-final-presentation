@@ -1,0 +1,53 @@
+---
+title: "Binging"
+author: "with Sonja, Lukas & Ferdinand"
+format: 
+  revealjs:
+    theme: white 
+editor: visual
+---
+
+## Our Dataset
+
+```{r}
+source("./code.R")
+```
+
+-   8 years of Netflix.
+-   Gathered from 3 different accounts with a total of 14 profiles.
+-   A combined watchtime of `r round(as.numeric(sum(activity$Duration))/3600/24/365, 2)` years.
+
+## What we are watching
+
+```{r, dev = "svg", fig.width=16, fig.height=9, dev.args=list(bg="transparent")}
+# source("./code.R")
+plot_favs
+```
+
+## What we are watching
+
+```{r, dev = "svg", fig.width=16, fig.height=9}
+# source("./code.R")
+plot_favs_no_tl
+```
+
+## How we are Watching
+
+```{r, dev = "svg", fig.width=16, fig.height=9}
+# source("./code.R")
+binge_sex_ed
+```
+
+## When we are watching
+
+```{r, dev = "png", fig.width=16, fig.height=9}
+# source("./code.R")
+peak_plot
+```
+
+## Why we are watching
+
+```{r, dev = "svg", fig.width=16, fig.height=9}
+# source("./code.R")
+final_plot
+```
