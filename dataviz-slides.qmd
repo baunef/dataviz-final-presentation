@@ -5,6 +5,7 @@ format:
   revealjs:
     theme: white 
 editor: visual
+footer: "Sonja, Lukas, Ferdinand | DataViz '23 | Analyzing Netflix Data"
 ---
 
 ## Our Dataset
@@ -17,37 +18,38 @@ source("./code.R")
 -   Gathered from 3 different accounts with a total of 14 profiles.
 -   A combined watchtime of `r round(as.numeric(sum(activity$Duration))/3600/24/365, 2)` years.
 
-## What we are watching
+## What are we watching?
 
-```{r, dev = "svg", fig.width=16, fig.height=9, dev.args=list(bg="transparent")}
-# source("./code.R")
+```{r, dev = "svg", fig.width=16, fig.height=9}
 plot_favs
 ```
 
-## What we are watching
+## What are we watching?
 
 ```{r, dev = "svg", fig.width=16, fig.height=9}
-# source("./code.R")
 plot_favs_no_tl
 ```
 
-## How we are Watching
+## How are we watching?
 
 ```{r, dev = "svg", fig.width=16, fig.height=9}
-# source("./code.R")
 binge_sex_ed
 ```
 
-## When we are watching
+## How are we watching?
+
+```{r, dev = "svg", fig.width=16, fig.height=9}
+binge_rnm
+```
+
+## When are we watching?
 
 ```{r, dev = "png", fig.width=16, fig.height=9}
-# source("./code.R")
 peak_plot
 ```
 
-## Why we are watching
+## Why are we watching?
 
 ```{r, dev = "svg", fig.width=16, fig.height=9}
-# source("./code.R")
 final_plot
 ```

@@ -1,7 +1,7 @@
 # R
-# Baune, Ferdinand
-# 20230201 
-# DataViz Data Import
+# Sonja, Lukas, Ferdinand
+# 20230216 
+# DataViz
 
 rm(list = ls())
 
@@ -50,7 +50,7 @@ long_extract <- function(my_show) {
 # Create data frame for a specific show 
 binge_me <- function(act_shows, show_name) {
   my_show <- act_shows %>% 
-    filter(Show==show_name) %>% 
+    filter(Show==show_name) %>% filter(Duration > 120) %>% 
     select(-c(Show, Country, Episode.Title)) %>% 
     type_convert()
   
@@ -67,7 +67,11 @@ binge_me <- function(act_shows, show_name) {
 
 mygraphics <- theme_minimal() + theme(legend.position="top", 
                                       legend.title = element_blank(), 
-                                      plot.title=element_text(size=40)
+                                      plot.title = element_text(size=20, hjust = 0.5),
+                                      legend.text = element_text(size=14),
+                                      axis.title = element_text(size = 14), 
+                                      axis.text = element_text(size = 14), 
+                                      plot.caption = element_text(size=14)
                                       )
 
 # Data Import -------------------------------------------------------------
@@ -122,17 +126,15 @@ fav_shows_ind <- act_shows %>%
 
 fav_shows_ind <- left_join(fav_shows_ind, fav_shows_all, by="Show") %>% rename(Duration = Duration.x, Duration_ALL = Duration.y)
 
-fav_graph <- fav_shows_ind %>% arrange(desc(Duration_ALL)) %>% filter(Show %in% fav_shows_all[1:20,]$Show) %>%
+plot_favs <- fav_shows_ind %>% arrange(desc(Duration_ALL)) %>% filter(Show %in% fav_shows_all[1:20,]$Show) %>%
   ggplot(aes(x = fct_reorder(Show, Duration_ALL), y = as.numeric(Duration)/3600/24)) + 
   geom_bar(stat='identity', aes(fill=Profile.Name), position="stack") + 
-  coord_flip()
-
-plot_favs <- fav_graph + 
+  coord_flip(ylim=c(0,60)) + 
   labs(x="", y="Duration / days",
        title=paste("Most watched shows by profile between", format(mystart, "%d %b '%y"), " and ", format(myend, "%d %b '%y")),
        caption="Source: Netflix") + 
-  theme_minimal() + theme(legend.position="top", legend.title = element_blank()) +
-  scale_fill_manual(values = colorRampPalette(brewer.pal(11, "Set3"))(22)) + guides(fill = guide_legend(nrow = 2))
+  mygraphics + 
+  scale_fill_manual(values = colorRampPalette(brewer.pal(11, "Set3"))(22)) + guides(fill = guide_legend(nrow = 1))
 
 
 ## w/o Tommy & Lea --------------------------------------------------------
@@ -150,37 +152,97 @@ fav_shows_ind_no_tl <- left_join(fav_shows_ind_no_tl, fav_shows_no_tl, by="Show"
 plot_favs_no_tl <- fav_shows_ind_no_tl %>% arrange(desc(Duration_ALL)) %>% filter(Show %in% fav_shows_no_tl[1:20,]$Show) %>%
   ggplot(aes(x = fct_reorder(Show, Duration_ALL), y = as.numeric(Duration)/3600/24)) + 
   geom_bar(stat='identity', aes(fill=Profile.Name), position="stack") + 
-  coord_flip() +
+  coord_flip(ylim=c(0,60)) +
   labs(x="", y="Duration / days",
        title=paste("Most watched shows by profile between", format(mystart, "%d %b '%y"), " and ", format(myend, "%d %b '%y")),
        caption="Source: Netflix") + 
-  theme_minimal() + theme(legend.position="top", legend.title = element_blank()) +
-  scale_fill_manual(values = colorRampPalette(brewer.pal(11, "Set3"))(22)) + guides(fill = guide_legend(nrow = 2))
+  mygraphics + 
+  scale_fill_manual(values = colorRampPalette(brewer.pal(11, "Set3"))(22)) + guides(fill = guide_legend(nrow = 1))
 
+
+# Favorite Seasons --------------------------------------------------------
+
+mystart <- as_datetime("2019-11-01")
+myend   <- as_datetime("2023-01-01")
+
+fav_shows_season <- act_shows %>% 
+  filter(Start.Time > mystart) %>% filter(Start.Time < myend) %>%
+  aggregate(Duration ~ Season + Show, sum) 
+
+fav_shows_max <- act_shows %>% 
+  filter(Start.Time > mystart) %>% filter(Start.Time < myend) %>%
+  aggregate(as.integer(Season) ~ Show, n_distinct) %>% setNames(c("Show", "Season_MAX")) %>% arrange(desc(Season_MAX))
+
+fav_shows_season <- left_join(fav_shows_season, fav_shows_max, by="Show")
+
+fav_shows_all <- act_shows %>% 
+  filter(Start.Time > mystart) %>% filter(Start.Time < myend) %>%
+  aggregate(Duration ~ Show, sum) %>% arrange(desc(Duration))
+
+fav_shows_season <- left_join(fav_shows_season, fav_shows_all, by="Show") %>% rename(Duration = Duration.x, Duration_ALL = Duration.y)
+
+fav_shows_season$Season <- as.integer(replace_na(fav_shows_season$Season, 0))
+
+
+## Graph ------------------------------------------------------------------
+
+plot_seasons <- fav_shows_season %>% arrange(desc(Season_MAX), Season) %>% filter(Season_MAX == 6) %>% filter(as.numeric(Duration_ALL)/3600/24 > 1) %>%
+  ggplot(aes(x = Season, y = as.numeric(Duration)/as.numeric(Duration_ALL)/Season_MAX)) + 
+  geom_bar(stat='identity', position="dodge", aes(fill=Show), show.legend = FALSE) + 
+  facet_wrap(vars(Show), scales = "free_x") + 
+  labs(x="Season", y="Normalized* Duration",
+       title=paste("Most watched seasons of highly requested shows between", format(mystart, "%d %b '%y"), " and ", format(myend, "%d %b '%y")),
+       caption="* Duration normalized by dividing each Show by its total watchtime and number of seasons;\nSource Netflix") + 
+  mygraphics +
+  scale_x_continuous("Season", breaks = 1:23) +
+  scale_fill_manual(values = colorRampPalette(brewer.pal(11, "Set3"))(22))
 
 # Progress ----------------------------------------------------------------
 
 show_me <- "Sex Education"
 
+dates <- c(as_datetime("2019-01-11"), as_datetime("2020-01-17"), as_datetime("2021-09-17"))
+labels <- c("Release of Season 1", "Release of Season 2", "Release of Season 3")
+releases <- data.frame(dates, labels)
+
 binge_sex_ed <- binge_me(act_shows = act_shows, show_name = show_me) %>%
-  # filter(Start.Time > as_datetime("2021-08-01")) %>%
   ggplot(aes(x=End.Time, y=long_episode)) + 
-  geom_point(aes(color=Profile.Name)) +
-  geom_step(aes(color=Profile.Name)) + 
-  scale_fill_distiller(palette = "YlGn") + 
-  labs(x="Time", y="Episodes", title = paste("Watch Pattern of ", show_me)) + 
+  geom_label(data=releases, mapping=aes(x=dates, y=0, label=labels), color="gray35", nudge_x = 24*36000, hjust = 0) +
+  annotate(geom="point", x=as_datetime("2019-01-11"), y=0, color="gray35", size=3) +
+  annotate(geom="point", x=as_datetime("2020-01-17"), y=0, color="gray35", size=3) +
+  annotate(geom="point", x=as_datetime("2021-09-17"), y=0, color="gray35", size=3) +
+  # annotate(geom="label", x=as_datetime("2019-01-11") + 24*3600*90, y=0, label="Release of Season 1", color="gray35") +
+  # annotate(geom="label", x=as_datetime("2020-01-17") + 24*3600*90, y=0, label="Release of Season 2", color="gray35") +
+  # annotate(geom="label", x=as_datetime("2021-09-17") + 24*3600*90, y=0, label="Release of Season 3", color="gray35") +
+  geom_vline(aes(xintercept=as_datetime("2019-01-11")), color="gray35") +
+  geom_vline(aes(xintercept=as_datetime("2020-01-17")), color="gray35") +
+  geom_vline(aes(xintercept=as_datetime("2021-09-17")), color="gray35") +
+  geom_point(aes(color=Profile.Name), size=3, alpha=.25) +
+  # geom_step(aes(color=Profile.Name)) + 
+  scale_fill_manual(values = colorRampPalette(brewer.pal(11, "Set3"))(22)) + 
+  labs(x="Time", y="Episodes", title = paste("Watch Pattern of ", show_me), caption = "Source: Netflix") + 
   guides(colour = guide_legend(nrow = 1)) + 
-  annotate(geom="point", x=as_datetime("2019-01-11"), y=0) +
-  annotate(geom="point", x=as_datetime("2020-01-17"), y=0) +
-  annotate(geom="point", x=as_datetime("2021-09-17"), y=0) +
-  annotate(geom="label", x=as_datetime("2019-01-11") + 24*3600*90, y=0, label="Release of Season 1") +
-  annotate(geom="label", x=as_datetime("2020-01-17") + 24*3600*90, y=0, label="Release of Season 2") +
-  annotate(geom="label", x=as_datetime("2021-09-17") + 24*3600*90, y=0, label="Release of Season 3") +
-  geom_vline(aes(xintercept=as_datetime("2019-01-11"))) +
-  geom_vline(aes(xintercept=as_datetime("2020-01-17"))) +
-  geom_vline(aes(xintercept=as_datetime("2021-09-17"))) +
   mygraphics
 
+show_me <- "Rick and Morty"
+binge_rnm <- binge_me(act_shows = act_shows, show_name = show_me) %>%
+  ggplot(aes(x=End.Time, y=long_episode)) + 
+  geom_point(aes(color=Profile.Name), size=3, alpha=.25) +
+  # geom_step(aes(color=Profile.Name)) + 
+  scale_fill_manual(values = colorRampPalette(brewer.pal(11, "Set3"))(22)) + 
+  labs(x="Time", y="Episodes", title = paste("Watch Pattern of ", show_me), caption = "Source: Netflix") + 
+  guides(colour = guide_legend(nrow = 1)) + 
+  mygraphics
+
+show_me <-  "Better Call Saul"
+binge_bcs <- binge_me(act_shows = act_shows, show_name = show_me) %>%
+  ggplot(aes(x=End.Time, y=long_episode)) + 
+  geom_point(aes(color=Profile.Name), size=3, alpha=.25) +
+  geom_step(aes(color=Profile.Name)) + 
+  scale_fill_manual(values = colorRampPalette(brewer.pal(11, "Set3"))(22)) + 
+  labs(x="Time", y="Episodes", title = paste("Watch Pattern of ", show_me), caption = "Source: Netflix") + 
+  guides(colour = guide_legend(nrow = 1)) + 
+  mygraphics
 
 # Peak Hours --------------------------------------------------------------
 
@@ -194,9 +256,9 @@ peak_plot <- activity %>% group_by(wd,tnew) %>% tally() %>%
   ggplot(aes(x = as_factor(wd),y = tnew, fill = n)) + 
   geom_raster(alpha=0.87)+
   scale_y_reverse(breaks = seq(0, 24, by = 5),
-                  labels=c("0am","5am","10am","15pm","20pm"))+
+                  labels=c("12 pm","5 am","10 am","3 pm","8 pm"))+
   scale_fill_jcolors_contin(palette = "pal4") +
-  labs(y="",x="",fill="Viewing Activity",title="START TIMES OF VIEWING ACTIVITIES", 
+  labs(y="",x="",fill="Viewing Activity",title="Viewing Activity by Weekday and Time", 
        caption = "Source: Netflix")+
   scale_x_discrete(labels=c("1" = "Monday",
                             "2" = "Tuesday",
@@ -205,11 +267,11 @@ peak_plot <- activity %>% group_by(wd,tnew) %>% tally() %>%
                             "5" = "Friday",
                             "6" = "Saturday",
                             "7" = "Sunday"))+
-  theme_minimal() + theme(legend.position="bottom",
-        plot.title=element_text(size=20))+
+  mygraphics + 
   theme(axis.text.x = element_text(vjust=4),
         axis.text.y = element_text(hjust=1.5),
-        plot.margin=unit(c(0.5,0.5,0.5,0), 'cm'))
+        plot.margin=unit(c(0.5,0.5,0.5,0), 'cm'), 
+        legend.position = "right")
 
 
 # Weather -----------------------------------------------------------------
@@ -316,7 +378,7 @@ combined_data_TommyLea     ["watchtime"][is.na(combined_data_TommyLea["watchtime
 lm(formula = watchtime ~ suntime, data = combined_data_LukasLarissa) # RESULT: NO STATISTICALLY SIGNIFICANT CORRELATION
 
 p01 <- ggplot(combined_data_LukasLarissa, aes(x = suntime, y = watchtime))          +
-  theme_minimal()                                                           +
+  mygraphics                                                                +
   geom_point(size = 0.75)                                                   +
   ggtitle(label = "Lukas & Larissa (Munich)")                               +
   theme(plot.title = element_text(hjust = 0.5, size = 11))                  +
@@ -329,7 +391,7 @@ p01 <- ggplot(combined_data_LukasLarissa, aes(x = suntime, y = watchtime))      
 lm(formula = watchtime ~ suntime, data = combined_data_LukasNina) # RESULT: NO STATISTICALLY SIGNIFICANT CORRELATION
 
 p02 <- ggplot(combined_data_LukasNina, aes(x = suntime, y = watchtime))             +
-  theme_minimal()                                                           +
+  mygraphics                                                                +
   theme(axis.text.y = element_blank())                                      +
   geom_point(size = 0.75)                                                   +
   ggtitle(label = "Lukas & Nina (Gießen)")                                  +
@@ -343,7 +405,7 @@ p02 <- ggplot(combined_data_LukasNina, aes(x = suntime, y = watchtime))         
 lm(formula = watchtime ~ suntime, data = combined_data_TommyLea) # RESULT: NO STATISTICALLY SIGNIFICANT CORRELATION
 
 p03 <- ggplot(combined_data_TommyLea, aes(x = suntime, y = watchtime))              +
-  theme_minimal()                                                           +
+  mygraphics                                                                +
   theme(axis.text.y = element_blank())                                      +
   geom_point(size = 0.75)                                                   +
   ggtitle(label = "Tommy & Lea (Dillenburg)")                               +
@@ -357,7 +419,7 @@ p03 <- ggplot(combined_data_TommyLea, aes(x = suntime, y = watchtime))          
 lm(formula = watchtime ~ max_temperature, data = combined_data_LukasLarissa) # RESULT: NO STATISTICALLY SIGNIFICANT CORRELATION
 
 p04 <- ggplot(combined_data_LukasLarissa, aes(x = max_temperature, y = watchtime))  +
-  theme_minimal()                                                           +
+  mygraphics                                                                +
   geom_point(size = 0.75)                                                   +
   ggtitle(label = "")                                                       +
   scale_x_continuous(name = "", limits = c(0, 35))                          +
@@ -369,7 +431,7 @@ p04 <- ggplot(combined_data_LukasLarissa, aes(x = max_temperature, y = watchtime
 lm(formula = watchtime ~ max_temperature, data = combined_data_LukasNina) # RESULT: NO STATISTICALLY SIGNIFICANT CORRELATION
 
 p05 <- ggplot(combined_data_LukasNina, aes(x = max_temperature, y = watchtime))     +
-  theme_minimal()                                                           +
+  mygraphics                                                                +
   theme(axis.text.y = element_blank())                                      +
   geom_point(size = 0.75)                                                   +
   ggtitle(label = "")                                                       +
@@ -382,7 +444,7 @@ p05 <- ggplot(combined_data_LukasNina, aes(x = max_temperature, y = watchtime)) 
 lm(formula = watchtime ~ max_temperature, data = combined_data_TommyLea) # RESULT: NO STATISTICALLY SIGNIFICANT CORRELATION
 
 p06 <- ggplot(combined_data_TommyLea, aes(x = max_temperature, y = watchtime))      +
-  theme_minimal()                                                           +
+  mygraphics                                                                +
   theme(axis.text.y = element_blank())                                      +
   geom_point(size = 0.75)                                                   +
   ggtitle(label = "")                                                       +
@@ -395,7 +457,7 @@ p06 <- ggplot(combined_data_TommyLea, aes(x = max_temperature, y = watchtime))  
 lm(formula = watchtime ~ rainfall, data = combined_data_LukasLarissa) # RESULT: NO STATISTICALLY SIGNIFICANT CORRELATION
 
 p07 <- ggplot(combined_data_LukasLarissa, aes(x = rainfall, y = watchtime))         +
-  theme_minimal()                                                           +
+  mygraphics                                                                +
   geom_point(size = 0.75)                                                   +
   ggtitle(label = "")                                                       +
   scale_x_continuous(name = "", limits = c(0, 45))                          +
@@ -407,7 +469,7 @@ p07 <- ggplot(combined_data_LukasLarissa, aes(x = rainfall, y = watchtime))     
 lm(formula = watchtime ~ rainfall, data = combined_data_LukasNina) # RESULT: NO STATISTICALLY SIGNIFICANT CORRELATION
 
 p08 <- ggplot(combined_data_LukasNina, aes(x = rainfall, y = watchtime))            +
-  theme_minimal()                                                           +
+  mygraphics                                                                +
   theme(axis.text.y = element_blank())                                      +
   geom_point(size = 0.75)                                                   +
   ggtitle(label = "")                                                       +
@@ -420,7 +482,7 @@ p08 <- ggplot(combined_data_LukasNina, aes(x = rainfall, y = watchtime))        
 lm(formula = watchtime ~ rainfall, data = combined_data_TommyLea) # RESULT: NO STATISTICALLY SIGNIFICANT CORRELATION
 
 p09 <- ggplot(combined_data_TommyLea, aes(x = rainfall, y = watchtime))             +
-  theme_minimal()                                                           +
+  mygraphics                                                                +
   theme(axis.text.y = element_blank())                                      +
   geom_point(size = 0.75)                                                   +
   ggtitle(label = "")                                                       +
@@ -428,17 +490,21 @@ p09 <- ggplot(combined_data_TommyLea, aes(x = rainfall, y = watchtime))         
   scale_y_continuous(name = "", limits = c(0, 15))                          +
   geom_smooth(method = "lm", se = FALSE, col = "blue", fullrange = TRUE)
 
-#### END ####
 
 
 #### CREATE GROUPED PLOT ####
 
 final_plot <- ggarrange(p01, p02, p03, p04, p05, p06, p07, p08, p09, 
-                        ncol = 3, nrow = 3) + theme_minimal()
+                        ncol = 3, nrow = 3) + 
+  mygraphics +
+  labs(y="",x="",fill="Viewing Activity",title="The Influence of Weather on Time spent on Netflix", 
+       caption = "Source: Netflix, Meteostat")
 
-annotate_figure(final_plot, top = text_grob("The Influence of Weather on Time spent on Netflix", face = "bold", size = 15))
 
-#### END ####
+# END END END END END END END END END END END END END END END END END -----
+
+
+
 
 
 
