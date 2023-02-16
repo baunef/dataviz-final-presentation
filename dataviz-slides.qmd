@@ -24,12 +24,6 @@ source("./code.R")
 plot_favs
 ```
 
-## What are we watching?
-
-```{r, dev = "svg", fig.width=16, fig.height=9}
-plot_favs_no_tl
-```
-
 ## How are we watching?
 
 ```{r, dev = "svg", fig.width=16, fig.height=9}
