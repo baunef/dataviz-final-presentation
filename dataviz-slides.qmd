@@ -4,11 +4,14 @@ author: "with Sonja, Lukas & Ferdinand"
 format: 
   revealjs:
     theme: white 
+    transition: slide
+    navigation-mode: vertical
+    controls-layout: bottom-right
 editor: visual
 footer: "Sonja, Lukas, Ferdinand | DataViz '23 | Analyzing Netflix Data"
 ---
 
-## Our Dataset
+# Our Dataset
 
 ```{r}
 source("./code.R")
@@ -18,13 +21,37 @@ source("./code.R")
 -   Gathered from 3 different accounts with a total of 14 profiles.
 -   A combined watchtime of `r round(as.numeric(sum(activity$Duration))/3600/24/365, 2)` years.
 
-## What are we watching?
+# What are we watching?
 
 ```{r, dev = "svg", fig.width=16, fig.height=9}
 plot_favs
 ```
 
-## How are we watching?
+## What are we watching?
+
+```{r}
+#| echo: true
+#| output: false
+fav_shows_ind %>% 
+  arrange(desc(Duration_ALL)) %>% 
+  filter(Show %in% fav_shows_all[1:20,]$Show) %>%
+  ggplot(
+    aes(
+      x = fct_reorder(Show, Duration_ALL), 
+      y = as.numeric(Duration)/3600/24)) + 
+  geom_bar(stat='identity', aes(fill=Profile.Name), position="stack") + 
+  coord_flip(ylim=c(0,60)) + 
+  labs(x="", y="Duration / days",
+       title=paste("Most watched shows by profile between", 
+                   format(mystart, "%d %b '%y"), " and ", 
+                   format(myend, "%d %b '%y")),
+       caption="Source: Netflix") + 
+  mygraphics + 
+  scale_fill_manual(values = colorRampPalette(brewer.pal(11, "Set3"))(22)) + 
+  guides(fill = guide_legend(nrow = 1))
+```
+
+# How are we watching?
 
 ```{r, dev = "svg", fig.width=16, fig.height=9}
 binge_sex_ed
@@ -32,17 +59,102 @@ binge_sex_ed
 
 ## How are we watching?
 
+```{r}
+#| echo: true
+#| output: false
+show_me <- "Sex Education"
+
+dates <- c(as_datetime("2019-01-11"), as_datetime("2020-01-17"), as_datetime("2021-09-17"))
+labels <- c("Release of Season 1", "Release of Season 2", "Release of Season 3")
+releases <- data.frame(dates, labels)
+
+binge_sex_ed <- binge_me(act_shows = act_shows, show_name = show_me) %>%
+  ggplot(aes(x=End.Time, y=long_episode)) + 
+  geom_label(data=releases, 
+             mapping=aes(x=dates, y=0, label=labels), 
+             color="gray35", nudge_x = 24*36000, hjust = 0) +
+  annotate(geom="point", x=as_datetime("2019-01-11"), y=0, color="gray35", size=3) +
+  annotate(geom="point", x=as_datetime("2020-01-17"), y=0, color="gray35", size=3) +
+  annotate(geom="point", x=as_datetime("2021-09-17"), y=0, color="gray35", size=3) +
+  geom_vline(aes(xintercept=as_datetime("2019-01-11")), color="gray35") +
+  geom_vline(aes(xintercept=as_datetime("2020-01-17")), color="gray35") +
+  geom_vline(aes(xintercept=as_datetime("2021-09-17")), color="gray35") +
+  geom_point(aes(color=Profile.Name), size=3, alpha=.25) +
+  # geom_step(aes(color=Profile.Name)) + 
+  scale_fill_manual(values = colorRampPalette(brewer.pal(11, "Set3"))(22)) + 
+  labs(x="Time", y="Episodes", 
+       title = paste("Watch Pattern of ", show_me), 
+       caption = "Source: Netflix") + 
+  guides(colour = guide_legend(nrow = 1)) + 
+  mygraphics
+```
+
+# How are we watching?
+
 ```{r, dev = "svg", fig.width=16, fig.height=9}
 binge_rnm
 ```
 
-## When are we watching?
+## How are we watching?
+
+```{r}
+#| echo: true
+#| output: false
+show_me <- "Rick and Morty"
+
+binge_rnm <- binge_me(act_shows = act_shows, show_name = show_me) %>%
+  ggplot(aes(x=End.Time, y=long_episode)) + 
+  geom_point(aes(color=Profile.Name), size=3, alpha=.25) +
+  # geom_step(aes(color=Profile.Name)) + 
+  scale_fill_manual(values = colorRampPalette(brewer.pal(11, "Set3"))(22)) + 
+  labs(x="Time", y="Episodes", 
+       title = paste("Watch Pattern of ", show_me), 
+       caption = "Source: Netflix") + 
+  guides(colour = guide_legend(nrow = 1)) + 
+  mygraphics
+```
+
+# When are we watching?
 
 ```{r, dev = "png", fig.width=16, fig.height=9}
 peak_plot
 ```
 
-## Why are we watching?
+## When are we watching?
+
+```{r}
+#| echo: true
+#| output: false
+activity$date <- as.Date(activity$Start.Time,format="%u")
+activity$wd=wday(activity$date)
+
+activity$tnew=format(as.POSIXct(activity$Start.Time), format = "%H") 
+activity$tnew=as.numeric(activity$tnew)
+
+peak_plot <- activity %>% group_by(wd,tnew) %>% tally() %>%
+  ggplot(aes(x = as_factor(wd),y = tnew, fill = n)) + 
+  geom_raster(alpha=0.87)+
+  scale_y_reverse(breaks = seq(0, 24, by = 5),
+                  labels=c("12 pm","5 am","10 am","3 pm","8 pm"))+
+  scale_fill_jcolors_contin(palette = "pal4") +
+  labs(y="",x="",fill="Viewing Activity",
+       title="Viewing Activity by Weekday and Time", 
+       caption = "Source: Netflix")+
+  scale_x_discrete(labels=c("1" = "Monday",
+                            "2" = "Tuesday",
+                            "3" = "Wednesday",
+                            "4" = "Thursday",
+                            "5" = "Friday",
+                            "6" = "Saturday",
+                            "7" = "Sunday"))+
+  mygraphics + 
+  theme(axis.text.x = element_text(vjust=4),
+        axis.text.y = element_text(hjust=1.5),
+        plot.margin=unit(c(0.5,0.5,0.5,0), 'cm'), 
+        legend.position = "right")
+```
+
+# Why are we watching?
 
 ```{r, dev = "svg", fig.width=16, fig.height=9}
 final_plot
