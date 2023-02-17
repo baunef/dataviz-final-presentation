@@ -211,14 +211,10 @@ binge_sex_ed <- binge_me(act_shows = act_shows, show_name = show_me) %>%
   annotate(geom="point", x=as_datetime("2019-01-11"), y=0, color="gray35", size=3) +
   annotate(geom="point", x=as_datetime("2020-01-17"), y=0, color="gray35", size=3) +
   annotate(geom="point", x=as_datetime("2021-09-17"), y=0, color="gray35", size=3) +
-  # annotate(geom="label", x=as_datetime("2019-01-11") + 24*3600*90, y=0, label="Release of Season 1", color="gray35") +
-  # annotate(geom="label", x=as_datetime("2020-01-17") + 24*3600*90, y=0, label="Release of Season 2", color="gray35") +
-  # annotate(geom="label", x=as_datetime("2021-09-17") + 24*3600*90, y=0, label="Release of Season 3", color="gray35") +
   geom_vline(aes(xintercept=as_datetime("2019-01-11")), color="gray35") +
   geom_vline(aes(xintercept=as_datetime("2020-01-17")), color="gray35") +
   geom_vline(aes(xintercept=as_datetime("2021-09-17")), color="gray35") +
   geom_point(aes(color=Profile.Name), size=3, alpha=.25) +
-  # geom_step(aes(color=Profile.Name)) + 
   scale_fill_manual(values = colorRampPalette(brewer.pal(11, "Set3"))(22)) + 
   labs(x="Time", y="Episodes", title = paste("Watch Pattern of ", show_me), caption = "Source: Netflix") + 
   guides(colour = guide_legend(nrow = 1)) + 
@@ -228,7 +224,6 @@ show_me <- "Rick and Morty"
 binge_rnm <- binge_me(act_shows = act_shows, show_name = show_me) %>%
   ggplot(aes(x=End.Time, y=long_episode)) + 
   geom_point(aes(color=Profile.Name), size=3, alpha=.25) +
-  # geom_step(aes(color=Profile.Name)) + 
   scale_fill_manual(values = colorRampPalette(brewer.pal(11, "Set3"))(22)) + 
   labs(x="Time", y="Episodes", title = paste("Watch Pattern of ", show_me), caption = "Source: Netflix") + 
   guides(colour = guide_legend(nrow = 1)) + 
