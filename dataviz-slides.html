@@ -464,13 +464,12 @@ with Sonja, Lukas &amp; Ferdinand
 <span id="cb2-16"><a href="#cb2-16"></a>  <span class="fu">geom_vline</span>(<span class="fu">aes</span>(<span class="at">xintercept=</span><span class="fu">as_datetime</span>(<span class="st">"2020-01-17"</span>)), <span class="at">color=</span><span class="st">"gray35"</span>) <span class="sc">+</span></span>
 <span id="cb2-17"><a href="#cb2-17"></a>  <span class="fu">geom_vline</span>(<span class="fu">aes</span>(<span class="at">xintercept=</span><span class="fu">as_datetime</span>(<span class="st">"2021-09-17"</span>)), <span class="at">color=</span><span class="st">"gray35"</span>) <span class="sc">+</span></span>
 <span id="cb2-18"><a href="#cb2-18"></a>  <span class="fu">geom_point</span>(<span class="fu">aes</span>(<span class="at">color=</span>Profile.Name), <span class="at">size=</span><span class="dv">3</span>, <span class="at">alpha=</span>.<span class="dv">25</span>) <span class="sc">+</span></span>
-<span id="cb2-19"><a href="#cb2-19"></a>  <span class="co"># geom_step(aes(color=Profile.Name)) + </span></span>
-<span id="cb2-20"><a href="#cb2-20"></a>  <span class="fu">scale_fill_manual</span>(<span class="at">values =</span> <span class="fu">colorRampPalette</span>(<span class="fu">brewer.pal</span>(<span class="dv">11</span>, <span class="st">"Set3"</span>))(<span class="dv">22</span>)) <span class="sc">+</span> </span>
-<span id="cb2-21"><a href="#cb2-21"></a>  <span class="fu">labs</span>(<span class="at">x=</span><span class="st">"Time"</span>, <span class="at">y=</span><span class="st">"Episodes"</span>, </span>
-<span id="cb2-22"><a href="#cb2-22"></a>       <span class="at">title =</span> <span class="fu">paste</span>(<span class="st">"Watch Pattern of "</span>, show_me), </span>
-<span id="cb2-23"><a href="#cb2-23"></a>       <span class="at">caption =</span> <span class="st">"Source: Netflix"</span>) <span class="sc">+</span> </span>
-<span id="cb2-24"><a href="#cb2-24"></a>  <span class="fu">guides</span>(<span class="at">colour =</span> <span class="fu">guide_legend</span>(<span class="at">nrow =</span> <span class="dv">1</span>)) <span class="sc">+</span> </span>
-<span id="cb2-25"><a href="#cb2-25"></a>  mygraphics</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb2-19"><a href="#cb2-19"></a>  <span class="fu">scale_fill_manual</span>(<span class="at">values =</span> <span class="fu">colorRampPalette</span>(<span class="fu">brewer.pal</span>(<span class="dv">11</span>, <span class="st">"Set3"</span>))(<span class="dv">22</span>)) <span class="sc">+</span> </span>
+<span id="cb2-20"><a href="#cb2-20"></a>  <span class="fu">labs</span>(<span class="at">x=</span><span class="st">"Time"</span>, <span class="at">y=</span><span class="st">"Episodes"</span>, </span>
+<span id="cb2-21"><a href="#cb2-21"></a>       <span class="at">title =</span> <span class="fu">paste</span>(<span class="st">"Watch Pattern of "</span>, show_me), </span>
+<span id="cb2-22"><a href="#cb2-22"></a>       <span class="at">caption =</span> <span class="st">"Source: Netflix"</span>) <span class="sc">+</span> </span>
+<span id="cb2-23"><a href="#cb2-23"></a>  <span class="fu">guides</span>(<span class="at">colour =</span> <span class="fu">guide_legend</span>(<span class="at">nrow =</span> <span class="dv">1</span>)) <span class="sc">+</span> </span>
+<span id="cb2-24"><a href="#cb2-24"></a>  mygraphics</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section></section>
 <section>
@@ -486,13 +485,12 @@ with Sonja, Lukas &amp; Ferdinand
 <span id="cb3-3"><a href="#cb3-3"></a>binge_rnm <span class="ot">&lt;-</span> <span class="fu">binge_me</span>(<span class="at">act_shows =</span> act_shows, <span class="at">show_name =</span> show_me) <span class="sc">%&gt;%</span></span>
 <span id="cb3-4"><a href="#cb3-4"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x=</span>End.Time, <span class="at">y=</span>long_episode)) <span class="sc">+</span> </span>
 <span id="cb3-5"><a href="#cb3-5"></a>  <span class="fu">geom_point</span>(<span class="fu">aes</span>(<span class="at">color=</span>Profile.Name), <span class="at">size=</span><span class="dv">3</span>, <span class="at">alpha=</span>.<span class="dv">25</span>) <span class="sc">+</span></span>
-<span id="cb3-6"><a href="#cb3-6"></a>  <span class="co"># geom_step(aes(color=Profile.Name)) + </span></span>
-<span id="cb3-7"><a href="#cb3-7"></a>  <span class="fu">scale_fill_manual</span>(<span class="at">values =</span> <span class="fu">colorRampPalette</span>(<span class="fu">brewer.pal</span>(<span class="dv">11</span>, <span class="st">"Set3"</span>))(<span class="dv">22</span>)) <span class="sc">+</span> </span>
-<span id="cb3-8"><a href="#cb3-8"></a>  <span class="fu">labs</span>(<span class="at">x=</span><span class="st">"Time"</span>, <span class="at">y=</span><span class="st">"Episodes"</span>, </span>
-<span id="cb3-9"><a href="#cb3-9"></a>       <span class="at">title =</span> <span class="fu">paste</span>(<span class="st">"Watch Pattern of "</span>, show_me), </span>
-<span id="cb3-10"><a href="#cb3-10"></a>       <span class="at">caption =</span> <span class="st">"Source: Netflix"</span>) <span class="sc">+</span> </span>
-<span id="cb3-11"><a href="#cb3-11"></a>  <span class="fu">guides</span>(<span class="at">colour =</span> <span class="fu">guide_legend</span>(<span class="at">nrow =</span> <span class="dv">1</span>)) <span class="sc">+</span> </span>
-<span id="cb3-12"><a href="#cb3-12"></a>  mygraphics</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb3-6"><a href="#cb3-6"></a>  <span class="fu">scale_fill_manual</span>(<span class="at">values =</span> <span class="fu">colorRampPalette</span>(<span class="fu">brewer.pal</span>(<span class="dv">11</span>, <span class="st">"Set3"</span>))(<span class="dv">22</span>)) <span class="sc">+</span> </span>
+<span id="cb3-7"><a href="#cb3-7"></a>  <span class="fu">labs</span>(<span class="at">x=</span><span class="st">"Time"</span>, <span class="at">y=</span><span class="st">"Episodes"</span>, </span>
+<span id="cb3-8"><a href="#cb3-8"></a>       <span class="at">title =</span> <span class="fu">paste</span>(<span class="st">"Watch Pattern of "</span>, show_me), </span>
+<span id="cb3-9"><a href="#cb3-9"></a>       <span class="at">caption =</span> <span class="st">"Source: Netflix"</span>) <span class="sc">+</span> </span>
+<span id="cb3-10"><a href="#cb3-10"></a>  <span class="fu">guides</span>(<span class="at">colour =</span> <span class="fu">guide_legend</span>(<span class="at">nrow =</span> <span class="dv">1</span>)) <span class="sc">+</span> </span>
+<span id="cb3-11"><a href="#cb3-11"></a>  mygraphics</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section></section>
 <section>

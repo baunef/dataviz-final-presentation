@@ -80,7 +80,6 @@ binge_sex_ed <- binge_me(act_shows = act_shows, show_name = show_me) %>%
   geom_vline(aes(xintercept=as_datetime("2020-01-17")), color="gray35") +
   geom_vline(aes(xintercept=as_datetime("2021-09-17")), color="gray35") +
   geom_point(aes(color=Profile.Name), size=3, alpha=.25) +
-  # geom_step(aes(color=Profile.Name)) + 
   scale_fill_manual(values = colorRampPalette(brewer.pal(11, "Set3"))(22)) + 
   labs(x="Time", y="Episodes", 
        title = paste("Watch Pattern of ", show_me), 
@@ -105,7 +104,6 @@ show_me <- "Rick and Morty"
 binge_rnm <- binge_me(act_shows = act_shows, show_name = show_me) %>%
   ggplot(aes(x=End.Time, y=long_episode)) + 
   geom_point(aes(color=Profile.Name), size=3, alpha=.25) +
-  # geom_step(aes(color=Profile.Name)) + 
   scale_fill_manual(values = colorRampPalette(brewer.pal(11, "Set3"))(22)) + 
   labs(x="Time", y="Episodes", 
        title = paste("Watch Pattern of ", show_me), 

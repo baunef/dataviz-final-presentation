@@ -139,11 +139,11 @@ plot_favs <- fav_shows_ind %>% arrange(desc(Duration_ALL)) %>% filter(Show %in% 
 
 ## w/o Tommy & Lea --------------------------------------------------------
 
-fav_shows_no_tl <- act_shows %>% filter(Profile.Name != "Tommy & Lea") %>% 
+fav_shows_no_tl <- act_shows %>% filter(Profile.Name != "TL") %>% 
   filter(Start.Time > mystart) %>% filter(Start.Time < myend) %>%
   aggregate(Duration ~ Show, sum) %>% arrange(desc(Duration))
 
-fav_shows_ind_no_tl <- act_shows %>% filter(Profile.Name != "Tommy & Lea") %>% 
+fav_shows_ind_no_tl <- act_shows %>% filter(Profile.Name != "TL") %>% 
   filter(Start.Time > mystart) %>% filter(Start.Time < myend) %>%
   aggregate(Duration ~ Profile.Name + Show, sum) %>% arrange(desc(Duration))
 
@@ -276,8 +276,6 @@ peak_plot <- activity %>% group_by(wd,tnew) %>% tally() %>%
 
 # Weather -----------------------------------------------------------------
 
-# source("./code_weather.R")
-
 ferdi <- data.frame(read.csv("./data/ferdi/ViewingActivity.csv")) %>% 
   select(-c(Attributes, Device.Type, Supplemental.Video.Type))
 
@@ -294,12 +292,12 @@ weatherdata_giessen     <- data.frame(read.csv("./data/weather/weatherdata_giess
 weatherdata_dillenburg <- data.frame(read.csv("./data/weather/weatherdata_dillenburg.csv"))
 
 ## INSERT ONE ROW PER PROFILE FOR 01.01.2020 AND 31.01.2023 WITH Start.Time = 2020-01-01 00:00:00 AND Duration = 00:00:00 TO MAKE SURE THE FULL RANGE OF INTEREST IS COVERED
-netflixdata <- netflixdata %>% add_row(Profile.Name = "Lukas & Larissa", Start.Time = "2020-01-01 00:00:00", Duration = "00:00:00")
-netflixdata <- netflixdata %>% add_row(Profile.Name = "Lukas & Larissa", Start.Time = "2023-01-31 00:00:00", Duration = "00:00:00")
-netflixdata <- netflixdata %>% add_row(Profile.Name = "Lukas & Nina",    Start.Time = "2020-01-01 00:00:00", Duration = "00:00:00")
-netflixdata <- netflixdata %>% add_row(Profile.Name = "Lukas & Nina",    Start.Time = "2023-01-31 00:00:00", Duration = "00:00:00")
-netflixdata <- netflixdata %>% add_row(Profile.Name = "Tommy & Lea",     Start.Time = "2020-01-01 00:00:00", Duration = "00:00:00")
-netflixdata <- netflixdata %>% add_row(Profile.Name = "Tommy & Lea",     Start.Time = "2023-01-31 00:00:00", Duration = "00:00:00")
+netflixdata <- netflixdata %>% add_row(Profile.Name = "LL", Start.Time = "2020-01-01 00:00:00", Duration = "00:00:00")
+netflixdata <- netflixdata %>% add_row(Profile.Name = "LL", Start.Time = "2023-01-31 00:00:00", Duration = "00:00:00")
+netflixdata <- netflixdata %>% add_row(Profile.Name = "LN",    Start.Time = "2020-01-01 00:00:00", Duration = "00:00:00")
+netflixdata <- netflixdata %>% add_row(Profile.Name = "LN",    Start.Time = "2023-01-31 00:00:00", Duration = "00:00:00")
+netflixdata <- netflixdata %>% add_row(Profile.Name = "TL",     Start.Time = "2020-01-01 00:00:00", Duration = "00:00:00")
+netflixdata <- netflixdata %>% add_row(Profile.Name = "TL",     Start.Time = "2023-01-31 00:00:00", Duration = "00:00:00")
 
 ## SORT ROWS BY DATE
 netflixdata <- netflixdata[order(netflixdata$Start.Time),]
@@ -322,9 +320,9 @@ weatherdata_giessen$tsun     <- (weatherdata_giessen$tsun/60)
 weatherdata_dillenburg$tsun <- (weatherdata_dillenburg$tsun/60)
 
 ## CREATE SEPARATE DATASETS FOR EACH ACCOUNT (PROFILE "Gast 2" HAS NO ENTRIES - HAS NEVER BEEN USED)
-netflixdata_LukasLarissa <- filter(netflixdata, Profile.Name == "Lukas & Larissa")
-netflixdata_LukasNina    <- filter(netflixdata, Profile.Name == "Lukas & Nina")
-netflixdata_TommyLea     <- filter(netflixdata, Profile.Name == "Tommy & Lea")
+netflixdata_LukasLarissa <- filter(netflixdata, Profile.Name == "LL")
+netflixdata_LukasNina    <- filter(netflixdata, Profile.Name == "LN")
+netflixdata_TommyLea     <- filter(netflixdata, Profile.Name == "TL")
 
 ## ADD UP ALL DURATIONS THAT HAPPENED ON THE SAME DAYS (https://stackoverflow.com/questions/69588883/how-to-sum-values-in-one-column-based-on-values-in-other-columns-r)
 netflixdata_full         <- netflixdata              %>% group_by(Start.Time) %>% summarize(summed_duration = sum(Duration))
@@ -380,7 +378,7 @@ lm(formula = watchtime ~ suntime, data = combined_data_LukasLarissa) # RESULT: N
 p01 <- ggplot(combined_data_LukasLarissa, aes(x = suntime, y = watchtime))          +
   mygraphics                                                                +
   geom_point(size = 0.75)                                                   +
-  ggtitle(label = "Lukas & Larissa (Munich)")                               +
+  ggtitle(label = "LL (Munich)")                               +
   theme(plot.title = element_text(hjust = 0.5, size = 11))                  +
   scale_x_continuous(name = "", limits = c(0, 16))                          +
   scale_y_continuous(name = "", limits = c(0, 15))                          +
@@ -394,7 +392,7 @@ p02 <- ggplot(combined_data_LukasNina, aes(x = suntime, y = watchtime))         
   mygraphics                                                                +
   theme(axis.text.y = element_blank())                                      +
   geom_point(size = 0.75)                                                   +
-  ggtitle(label = "Lukas & Nina (Gießen)")                                  +
+  ggtitle(label = "LN (Gießen)")                                  +
   theme(plot.title = element_text(hjust = 0.5, size = 11))                  +
   scale_x_continuous(name = "Suntime in Hours", limits = c(0, 16))          +
   scale_y_continuous(name = "", limits = c(0, 15))                          +
@@ -408,7 +406,7 @@ p03 <- ggplot(combined_data_TommyLea, aes(x = suntime, y = watchtime))          
   mygraphics                                                                +
   theme(axis.text.y = element_blank())                                      +
   geom_point(size = 0.75)                                                   +
-  ggtitle(label = "Tommy & Lea (Dillenburg)")                               +
+  ggtitle(label = "TL (Dillenburg)")                               +
   theme(plot.title = element_text(hjust = 0.5, size = 11))                  +
   scale_x_continuous(name = "", limits = c(0, 16))                          +
   scale_y_continuous(name = "", limits = c(0, 15))                          +
